@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ubuntu · Komandoen erreferentzia azkarra</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2f;--panel2:#18223c;--text:#eef3ff;--muted:#9fb0d0;--accent:#8cc8ff;--line:#273553;--code:#090e1a;--shadow:0 14px 40px rgba(0,0,0,.22)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#09101f 0,#0c1324 32%,#0b1020 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:20;background:rgba(9,16,31,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1180px;margin:auto;padding:0 22px}
+.top{padding:22px 0 14px}
+h1{font-size:clamp(1.45rem,3vw,2.2rem);margin:0 0 5px;letter-spacing:-.03em}
+.subtitle{color:var(--muted);margin:0 0 18px}
+.searchrow{display:grid;grid-template-columns:1fr auto;gap:10px}
+input[type=search]{width:100%;font:inherit;font-size:1.04rem;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 16px;outline:none}
+input[type=search]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(140,200,255,.12)}
+.kbd{align-self:center;color:var(--muted);font-size:.86rem;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.filters{display:flex;gap:8px;overflow:auto;padding:12px 0 14px;scrollbar-width:thin}
+.filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:8px 12px;white-space:nowrap;cursor:pointer;font:inherit}
+.filter.active,.filter:hover{background:var(--panel2);color:var(--text);border-color:#496387}
+main{padding:24px 0 50px}
+.meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:.92rem;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(315px,1fr));gap:15px}
+.card{background:linear-gradient(180deg,var(--panel),#10182c);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);min-width:0}
+.cardhead{padding:15px 16px 10px}
+.badge{font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+.card h2{font-size:1.04rem;margin:5px 0 0}
+pre{margin:0;background:var(--code);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:15px 16px;overflow:auto;line-height:1.48;font-size:.88rem}
+code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+.note{color:#c7d4ed;padding:12px 16px 14px;font-size:.9rem;line-height:1.45;margin:0}
+.cardfoot{display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px;gap:10px}
+.tags{color:var(--muted);font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:6px 9px;cursor:pointer}
+.copy:hover{border-color:var(--accent)}
+.empty{display:none;text-align:center;padding:60px 10px;color:var(--muted)}
+.tip{margin:0 0 20px;padding:14px 16px;background:rgba(140,200,255,.07);border:1px solid #294562;border-radius:14px;color:#d8eaff;line-height:1.5}
+footer{border-top:1px solid var(--line);color:var(--muted);padding:22px 0 35px;font-size:.86rem}
+@media(max-width:640px){.kbd{display:none}.searchrow{grid-template-columns:1fr}.wrap{padding:0 14px}}
+@media print{header{position:static}.searchrow,.filters,.copy,.tags,.tip{display:none!important}body{background:white;color:black}.card{box-shadow:none;break-inside:avoid;background:white;border-color:#ccc}pre{background:#f5f5f5;color:black;border-color:#ddd}.note,.subtitle,.meta,.badge{color:#444}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <h1>Ubuntu · Komandoen erreferentzia azkarra</h1>
+    <p class="subtitle">Direktorioak · Fitxategiak · Komodinak · Iragazkiak</p>
+    <div class="searchrow">
+      <input id="search" type="search" autocomplete="off" placeholder="Bilatu: cd, cp -r, glob, head, grep, 4-3..." autofocus>
+      <span class="kbd">/ bilatzeko · Esc garbitzeko</span>
+    </div>
+    <div id="filters" class="filters"></div>
+  </div>
+</header>
+<main class="wrap">
+  <p class="tip"><strong>Erabilera:</strong> lehenengo aukeratu behar duzun komandoa; gero egiaztatu sintaxia. Adibideak ez dira ariketen soluzio osoak: zuk osatu behar dituzu bideak eta izenak.</p>
+  <div class="meta"><span id="count"></span><span>Offline · kanpoko mendekotasunik gabe</span></div>
+  <section id="grid" class="grid"></section>
+  <div id="empty" class="empty">Ez da emaitzarik aurkitu. Saiatu beste hitz batekin.</div>
+</main>
+<footer><div class="wrap">IS · Ubuntuko komandoen erreferentzia azkarra · Ez da tutoriala ezta soluzio-bilduma ere.</div></footer>
+<script>
+const CARDS=[
+{"id":"c1","title":"Non nagoen jakitea","cat":"Nabigazioa","keywords":["pwd","non nago","bide absolutua","kokapena","4-1"],"code":"pwd","note":"Uneko direktorioaren bide-izen absolutua erakusten du."},
+{"id":"c2","title":"cd bide-izen absolutua","cat":"Nabigazioa","keywords":["cd","absolutua","ruta absoluta","kokatu","4-1","4-2"],"code":"cd /home/erabiltzailea/IS","note":"Bide-izen osoa ematen denean, edozein lekutatik bertara joaten da."},
+{"id":"c3","title":"cd bide-izen erlatiboa","cat":"Nabigazioa","keywords":["cd","erlantiboa","ruta relativa","4-1","4-2","4-3"],"code":"cd IS\ncd ../etc","note":"Bidea uneko direktorioarekiko interpretatzen da."},
+{"id":"c4","title":"Karpeta pertsonalera (argumenturik gabe)","cat":"Nabigazioa","keywords":["cd","home","pertsonala","argumenturik gabe","4-1"],"code":"cd","note":"Argumenturik gabe, zuzeneko karpeta pertsonalera joaten da."},
+{"id":"c5","title":"cd ~ erabiliz","cat":"Nabigazioa","keywords":["cd","tilde","home","~","4-1","4-2"],"code":"cd ~","note":"~ beti da zure karpeta pertsonalaren laburpena."},
+{"id":"c6","title":"Direktorio gurasora","cat":"Nabigazioa","keywords":["cd","..","gurasoa","parent","4-1"],"code":"cd ..","note":"Maila bat gora egiteko."},
+{"id":"c7","title":"Hainbat maila gora","cat":"Nabigazioa","keywords":["cd","..","gora","erro","root","4-1"],"code":"cd ../../..","note":"Behar adina `..` kateatu. Adibidez, /home/erabiltzailea/IS-tik /-ra joateko: ../../.."},
+{"id":"c8","title":"Aurreko direktoriora itzuli","cat":"Nabigazioa","keywords":["cd","-","atzera","itzuli"],"code":"cd -","note":"Aurreko bisitatutako direktoriora itzultzen da."},
+{"id":"c9","title":"Uneko erabiltzailea","cat":"Nabigazioa","keywords":["whoami","erabiltzailea","usuario","4-1"],"code":"whoami","note":"Uneko erabiltzailearen izena erakusten du; bideak osatzeko erabilgarria."},
+
+{"id":"c10","title":"Direktorio bat sortzea","cat":"Direktorioak","keywords":["mkdir","karpeta","sortu","directorio","4-1","4-2","4-3"],"code":"mkdir karpeta","note":"Direktorio huts bat sortzen du uneko lekuan edo emandako bidean."},
+{"id":"c11","title":"Hainbat direktorio batera","cat":"Direktorioak","keywords":["mkdir","anitz","batera","1EB","2EB","3EB","4-1"],"code":"mkdir 1EB 2EB 3EB","note":"Argumentu guztiak direktorio gisa sortzen dira komando bakarrean."},
+{"id":"c12","title":"Direktorio habiaratuak","cat":"Direktorioak","keywords":["mkdir","-p","habiaratua","gurasoa","4-2"],"code":"mkdir -p gurasoa/semea","note":"Falta diren guraso-direktorioak ere sortzen ditu."},
+{"id":"c13","title":"Direktorio hutsa ezabatzea","cat":"Direktorioak","keywords":["rmdir","ezabatu","hutsik","error","4-1"],"code":"rmdir karpeta","note":"Hutsik dagoen direktorioa soilik ezabatzen du. Edukia badu, errorea ematen du: ez da fitxategiak ezabatzen dituen komandoa."},
+{"id":"c14","title":"Direktorioa edukiekin ezabatzea","cat":"Direktorioak","keywords":["rm","-r","ezabatu","edukia","errekursiboa","4-1","4-2","4-3"],"code":"rm -r karpeta","note":"Direktorioa eta barruko guztia ezabatzen ditu. Hainbat direktorio batera ere bai: rm -r k1 k2."},
+{"id":"c15","title":"Ezabaketa behartua","cat":"Direktorioak","keywords":["rm","-rf","behartu","force","arriskutsua","4-2","4-3"],"code":"rm -rf karpeta","note":"-f-k galdetu gabe ezabatzen du. Kontuz: ez dago atzera botatzerik; erabili bidea ondo egiaztatu ondoren."},
+{"id":"c16","title":"Izena aldatu edo lekuz aldatu","cat":"Direktorioak","keywords":["mv","rename","izena aldatu","lekuz","4-1","4-2"],"code":"mv IS Sistemak","note":"Jatorria eta helmuga emanda, izena aldatzen du (edo lekuz aldatzen du)."},
+{"id":"c17","title":"Hainbat elementu lekuz aldatu","cat":"Direktorioak","keywords":["mv","anitz","helmuga","4-1"],"code":"mv k1 k2 helmuga/","note":"Azken argumentua direktorio bat bada, aurreko guztiak bertara mugitzen dira."},
+
+{"id":"c18","title":"Testua fitxategian idaztea","cat":"Fitxategiak","keywords":["echo","redirect","birzuzenketa",">",">>","testua","4-1","4-2","4-4"],"code":"echo \"1. ebaluaketa\" > gaitegia.txt\necho \"beste lerro bat\" >> gaitegia.txt","note":"`>` fitxategia gainidazten du; `>>` amaieran gehitzen du. Fitxategia ez badago, sortu egiten da."},
+{"id":"c19","title":"Fitxategi huts bat sortzea","cat":"Fitxategiak","keywords":["touch","sortu","fitxategia","huts","4-2","4-3"],"code":"touch prueba.txt","note":"Fitxategia existitzen ez bada, hutsa sortzen du; badago, data berritzen du."},
+{"id":"c20","title":"Hainbat fitxategi huts batera","cat":"Fitxategiak","keywords":["touch","anitz","f1","fcinco","4-3"],"code":"touch f1 f2 f3 f4 fcinco fseis f7 f8","note":"Komando bakar batekin hainbat fitxategi sor daitezke."},
+{"id":"c21","title":"Fitxategiaren edukia ikustea","cat":"Fitxategiak","keywords":["cat","ikusi","edukia","irakurri","4-1","4-2","4-3","4-4"],"code":"cat fitxategia.txt","note":"Hasieratik bukaerara erakusten du; fitxategi luzeegietan pantaila gainezka egin dezake."},
+{"id":"c22","title":"Fitxategia editatzeko","cat":"Fitxategiak","keywords":["nano","editatu","editor","gorde","4-1","4-2"],"code":"nano fitxategia.txt","note":"Nano editorea irekitzen du. Gorde: Ctrl+O eta Enter; irten: Ctrl+X."},
+{"id":"c23","title":"Fitxategia kopiatzea","cat":"Fitxategiak","keywords":["cp","kopiatu","copy","4-2","4-3"],"code":"cp jatorria helmuga","note":"Fitxategi bat edo gehiago kopiatzen ditu; jatorrizkoa ez da aldatzen."},
+{"id":"c24","title":"Hainbat fitxategi kopiatzea","cat":"Fitxategiak","keywords":["cp","anitz","helmuga","prueba.txt","passwd","4-2"],"code":"cp ~/prueba.txt ~/passwd IS/","note":"Azken argumentua direktorioa bada, aurreko fitxategi guztiak bertara kopiatzen dira."},
+{"id":"c25","title":"Direktorioak edukiekin kopiatzea","cat":"Fitxategiak","keywords":["cp","-r","errekursiboa","edukia","etc","4-2","4-3"],"code":"cp -r /etc/* ~/IS/","note":"-r gabe direktorioak ez dira kopiatzen. `*`-k ez ditu fitxategi ezkutuak hartzen; haiek barne: cp -r /etc/. ~/IS/"},
+{"id":"c26","title":"Fitxategia lekuz aldatu","cat":"Fitxategiak","keywords":["mv","mugitu","lekuz","4-2","4-3"],"code":"mv fitxategia.txt karpeta/","note":"Mugitu egiten du; jatorrian ez da ezer geratzen."},
+{"id":"c27","title":"Fitxategi bat ezabatzea","cat":"Fitxategiak","keywords":["rm","ezabatu","fitxategia","4-2","4-3"],"code":"rm fitxategia.txt","note":"Fitxategia ezabatzen du. Ez du zakarrontzira bidaltzen."},
+{"id":"c28","title":"Hainbat fitxategi ezabatzea","cat":"Fitxategiak","keywords":["rm","anitz","fitxategiak","4-2","4-3"],"code":"rm prueba.txt passwd","note":"Argumentu guztiak ezabatzen ditu. Bide erlatiboak erabil daitezke: rm ../prueba.txt ../passwd"},
+{"id":"c29","title":"Sistema-fitxategien baimenak","cat":"Fitxategiak","keywords":["baimenak","permission denied","passwd","root","nano","sudo","4-2"],"code":"ls -l /etc/passwd\nnano /etc/passwd","note":"/etc/passwd root-ena da; erabiltzaile arruntak ez du editatu ahal izango eta 'Permission denied' jasoko du. Aldaketa egiteko sudo beharko litzateke, baina ariketan ez da behar."},
+
+{"id":"c30","title":"Direktorioaren edukia zerrendatzea","cat":"Zerrendatzea","keywords":["ls","zerrendatu","edukia","4-1","4-2","4-3","4-4"],"code":"ls","note":"Uneko direktorioko izenak erakusten ditu, xehetasunik gabe."},
+{"id":"c31","title":"Bista xehatua","cat":"Zerrendatzea","keywords":["ls","-l","xehatua","baimenak","tamaina","4-1","4-3","4-4"],"code":"ls -l","note":"Baimenak, jabea, taldea, tamaina eta data erakusten ditu."},
+{"id":"c32","title":"Fitxategi ezkutuak","cat":"Zerrendatzea","keywords":["ls","-a","ezkutua","hidden","4-1"],"code":"ls -a","note":".-z hasten diren fitxategi eta direktorioak ere erakusten ditu."},
+{"id":"c33","title":"Bista xehatua eta ezkutuak","cat":"Zerrendatzea","keywords":["ls","-la","-al","ezkutua","xehatua","4-1"],"code":"ls -la","note":"-l eta -a uztartzen ditu: xehetasunak eta fitxategi ezkutuak."},
+{"id":"c34","title":"Tamainak formatu irakurgarrian","cat":"Zerrendatzea","keywords":["ls","-lh","tamaina","KB","MB","GB","4-1"],"code":"ls -lh","note":"-h-k tamainak K, M eta G bezalako unitateetan erakusten ditu."},
+{"id":"c35","title":"Patroi bat betetzen duten fitxategiak","cat":"Zerrendatzea","keywords":["ls","glob","patroia","conf","absolutua","4-3","4-4"],"code":"ls -l /etc/*.conf","note":"Komodinak ls-ri pasatzen zaizkio; shell-ak patroiarekin bat datozen izenak zabaltzen ditu."},
+{"id":"c36","title":"Direktorioen egitura zuhaitzean","cat":"Zerrendatzea","keywords":["tree","egitura","zuhaitza","4-3"],"code":"tree ~","note":"Karpeta eta azpikarpetak zuhaitz gisa erakusten ditu. Ez badago: sudo apt install tree"},
+{"id":"c37","title":"Diskoak soilik","cat":"Zerrendatzea","keywords":["lsblk","-d","diskoak","partizioak","4-3"],"code":"lsblk -d","note":"-d-k partizioak alde batera utzi eta diskoak bakarrik erakusten ditu. Eredua gehitzeko: lsblk -d -o NAME,SIZE,MODEL"},
+{"id":"c38","title":"Direktorioen tamaina","cat":"Zerrendatzea","keywords":["du","-h","tamaina","KB","MB","GB","4-2"],"code":"du -h --max-depth=1 ~","note":"Karpeta bakoitzaren tamaina unitate irakurgarrietan. Karpeta osoarena: du -sh ~"},
+{"id":"c39","title":"Karpetaren tamaina bakarrean","cat":"Zerrendatzea","keywords":["du","-sh","tamaina","karpeta","4-2"],"code":"du -sh ~","note":"Karpeta osoaren tamaina osoa laburbiltzen du."},
+{"id":"c40","title":"Irizpide baten arabera bilatzea","cat":"Zerrendatzea","keywords":["find","bilatu","-name","-type","D","4-4"],"code":"find ~ -maxdepth 1 -type d -name 'D*'","note":"Karpeta pertsonalean D-z hasten diren direktorioak bilatzen ditu, azpikarpetetan sartu gabe."},
+{"id":"c41","title":"Windowsen egitura ikustea","cat":"Zerrendatzea","keywords":["windows","tree","cmd","powershell","4-3"],"code":"tree\ntree /F\nGet-ChildItem -Recurse","note":"CMD-n `tree` (edukiekin `tree /F`); PowerShell-en `Get-ChildItem -Recurse`. Linuxeko `tree`-ren baliokidea da."},
+
+{"id":"c42","title":"Komodina: *","cat":"Komodinak","keywords":["glob","komodina","*","edozein","patroia","4-3","4-4"],"code":"ls *.txt\nls f*","note":"Zero edo karaktere gehiago ordezkatzen ditu."},
+{"id":"c43","title":"Komodina: ?","cat":"Komodinak","keywords":["glob","komodina","?","karaktere bat","4-3"],"code":"ls f?","note":"Karaktere bakarra ordezkatzen du, nahitaez bat."},
+{"id":"c44","title":"Komodina: [abc]","cat":"Komodinak","keywords":["glob","komodina","[abc]","multzoa","4-3"],"code":"ls f[abc]","note":"Parentesi artean dagoen karaktere bakarra onartzen du."},
+{"id":"c45","title":"Komodina: [a-z] eta [0-9]","cat":"Komodinak","keywords":["glob","komodina","[a-z]","[0-9]","tartea","4-3","4-4"],"code":"ls f[0-9]\nls f[a-z]","note":"Karaktere-tarte bat adierazten du."},
+{"id":"c46","title":"Komodina: [!0-9]","cat":"Komodinak","keywords":["glob","komodina","[!0-9]","ukatu","zenbakia","4-3"],"code":"ls f*[!0-9]","note":"Azken karakterea ez da zenbakia izango. `!` edo `^` erabil daiteke ukatzeko."},
+{"id":"c47","title":"Ariketako patroi adibideak","cat":"Komodinak","keywords":["adibideak","glob","patroia","4-3","4-4"],"code":"ls f*[0-9]      # zenbakiz amaitzen dira\nls f????        # 5 karaktere\nls *s*          # 's' du nonbait\nls ??????       # 6 karaktere\nrm *.*          # luzapena du","note":"Patroiak komandoaren argumentu gisa erabiltzen dira. Ezabatu aurretik, probatu `ls`-rekin zer hautatzen den."},
+{"id":"c48","title":"Ezkutuko fitxategiak eta *","cat":"Komodinak","keywords":["glob","ezkutua","hidden","*","4-3"],"code":"ls -a\nls .*","note":"`*`-k ez ditu .-z hasten diren izenak hartzen. Ezkutuak ikusteko `ls -a` edo `.*` erabili."},
+
+{"id":"c49","title":"Lehen lerroak","cat":"Iragazkiak","keywords":["head","lehen","lerroak","4-4"],"code":"head fitxategia.txt","note":"Lehen 10 lerroak erakusten ditu lehenetsita."},
+{"id":"c50","title":"Lehen N lerroak","cat":"Iragazkiak","keywords":["head","-n","lerroak","3","10","4-4"],"code":"head -n 3 fitxategia.txt","note":"N zehazten du: -n 3 lehen hiru lerroak, -n 10 lehen hamar."},
+{"id":"c51","title":"Azken lerroak","cat":"Iragazkiak","keywords":["tail","azken","lerroak","4-4"],"code":"tail fitxategia.txt","note":"Azken 10 lerroak erakusten ditu lehenetsita."},
+{"id":"c52","title":"Azken N lerroak","cat":"Iragazkiak","keywords":["tail","-n","azken","lerroak","3","10","4-4"],"code":"tail -n 3 fitxategia.txt","note":"N zehazten du: -n 3 azken hiru lerroak."},
+{"id":"c53","title":"Ordena alfabetikoa","cat":"Iragazkiak","keywords":["sort","ordenatu","alfabetikoa","4-4"],"code":"sort /etc/passwd","note":"Lerroak goranzko ordena alfabetikoan erakusten ditu; fitxategia ez da aldatzen."},
+{"id":"c54","title":"Ordena alderantzizkoa","cat":"Iragazkiak","keywords":["sort","-r","alderantziz","reverse","4-4"],"code":"sort -r /etc/passwd > ~/nombres","note":"-r-k ordena alderantzikatzen du; `>`-k emaitza fitxategi berrian gordetzen du."},
+{"id":"c55","title":"Lerro kopurua","cat":"Iragazkiak","keywords":["wc","-l","lerro","kopurua","erabiltzaileak","4-4"],"code":"wc -l fitxategia.txt","note":"Lerro kopurua zenbatzen du; erabiltzaile kopurua lortzeko erabil daiteke."},
+{"id":"c56","title":"Testua bilatzea","cat":"Iragazkiak","keywords":["grep","bilatu","root","testua","4-4"],"code":"grep root ~/nombres > ROOT","note":"Patroia duten lerroak iragazten ditu; `>`-rekin emaitza fitxategian gordetzen da."},
+{"id":"c57","title":"Eremu bat ateratzea","cat":"Iragazkiak","keywords":["cut","-d","-f","eremua","izenak","4-4"],"code":"cut -d: -f1 fitxategia.txt","note":"Bi puntuz banatutako lehen eremua ateratzen du; /etc/passwd-en erabiltzaile-izenak emateko."},
+{"id":"c58","title":"Komandoak kateatzea (pipe)","cat":"Iragazkiak","keywords":["pipe","|","katea","head","sort","4-4"],"code":"head -n 3 fitxategia.txt | sort","note":"Ezkerreko komandoaren irteera eskuinekoaren sarrera bihurtzen du."},
+
+{"id":"c59","title":"Komandoaren eskuliburua","cat":"Laguntza","keywords":["man","manual","eskuliburua","laguntza","4-1"],"code":"man ls","note":"Manual osoa irekitzen du. Mugitu: ↑↓, bilatu: /testua, irten: q."},
+{"id":"c60","title":"Laguntza laburra","cat":"Laguntza","keywords":["--help","help","laguntza","aukerak","4-1"],"code":"ls --help","note":"Komandoaren aukera nagusiak modu laburrean erakusten ditu."}
+];
+
+const categories=["Guztiak",...new Set(CARDS.map(c=>c.cat))];
+const state={q:"",cat:"Guztiak"};
+const $=s=>document.querySelector(s);
+const grid=$("#grid"),search=$("#search"),empty=$("#empty"),count=$("#count"),filters=$("#filters");
+
+function norm(s){return(s||"").toLocaleLowerCase("eu").normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[m])}
+
+function renderFilters(){
+  filters.innerHTML=categories.map(cat=>`<button class="filter ${state.cat===cat?'active':''}" data-cat="${esc(cat)}">${esc(cat)}</button>`).join("");
+  filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{state.cat=b.dataset.cat;renderFilters();render()});
+}
+
+function matches(c){
+  if(state.cat!=="Guztiak"&&c.cat!==state.cat)return false;
+  const terms=norm(state.q).trim().split(/\s+/).filter(Boolean);
+  if(!terms.length)return true;
+  const hay=norm([c.title,c.cat,c.note,c.code,...c.keywords].join(" "));
+  return terms.every(t=>hay.includes(t));
+}
+
+function card(c){
+  return `<article class="card"><div class="cardhead"><div class="badge">${esc(c.cat)}</div><h2>${esc(c.title)}</h2></div><pre><code>${esc(c.code)}</code></pre><p class="note">${esc(c.note)}</p><div class="cardfoot"><span class="tags">${esc(c.keywords.slice(0,5).join(" · "))}</span><button class="copy" data-copy="${c.id}">Kopiatu</button></div></article>`;
+}
+
+function render(){
+  const items=CARDS.filter(matches);
+  grid.innerHTML=items.map(card).join("");
+  count.textContent=`${items.length} / ${CARDS.length} fitxa`;
+  empty.style.display=items.length?"none":"block";
+  grid.querySelectorAll(".copy").forEach(b=>b.onclick=async()=>{
+    const c=CARDS.find(x=>x.id===b.dataset.copy);
+    try{
+      await navigator.clipboard.writeText(c.code);
+      const old=b.textContent;
+      b.textContent="Kopiatuta";
+      setTimeout(()=>b.textContent=old,900);
+    }catch{
+      b.textContent="Hautatu kodea";
+    }
+  });
+}
+
+search.addEventListener("input",e=>{state.q=e.target.value;render()});
+document.addEventListener("keydown",e=>{
+  if(e.key==="/"&&document.activeElement!==search){e.preventDefault();search.focus()}
+  if(e.key==="Escape"){search.value="";state.q="";render();search.focus()}
+});
+
+renderFilters();
+render();
+</script>
+</body>
+</html>
